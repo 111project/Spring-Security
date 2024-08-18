@@ -2,6 +2,7 @@ package ru.itmentor.spring.boot_security.demo.start;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.itmentor.spring.boot_security.demo.repository.RoleRepository;
 import ru.itmentor.spring.boot_security.demo.repository.UserRepository;
@@ -16,16 +17,18 @@ public class StartedTableData implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
-
+private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public StartedTableData(RoleRepository roleRepository, UserRepository userRepository) {
+    public StartedTableData(RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
+
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         Role adminrole = new Role(1L, "ROLE_ADMIN");
         Role userrole = new Role(2L, "ROLE_USER");
         roleRepository.save(adminrole);
@@ -34,14 +37,15 @@ public class StartedTableData implements CommandLineRunner {
         Set<Role> admin_roles = new HashSet<>();
         admin_roles.add(adminrole);
 
-
-        User admin = new User(1L, "admin", 48, "admin@ex.com",  "admin", admin_roles);
+        String encodedAdminPassword = passwordEncoder.encode("admin");
+        User admin = new User(1L, "admin", 48, "admin@ex.com",  encodedAdminPassword, admin_roles);
         userRepository.save(admin);
 
         Set<Role> user_roles = new HashSet<>();
         user_roles.add(userrole);
 
-        User user = new User(2L, "user", 22, "user@ex.com", "user", user_roles);
+        String encodedUserPassword = passwordEncoder.encode("user");
+        User user = new User(2L, "user", 22, "user@ex.com", encodedUserPassword, user_roles);
         userRepository.save(user);
 
     }
